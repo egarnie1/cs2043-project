@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -21,7 +22,7 @@ login_manager.login_view = 'login'
 # Clear the database and create three new users
 @app.before_first_request
 def setup():
-	print("SETUP")
+	print("Setup")
 	Base.metadata.drop_all(bind=db.engine) 	
 	Base.metadata.create_all(bind=db.engine)
 	db.session.add(User('student@unb.ca', 'password123', 's'))
@@ -53,6 +54,7 @@ def login():
 		if user:
 			if user.password == form.password.data:
 				login_user(user, remember=form.remember.data)
+				app.logger.info("User " + form.email.data + " logged in")
 				return redirect(url_for('dashboard'))
 
 		return redirect(url_for('error'))
@@ -67,11 +69,12 @@ def newUser():
 
 	if form.validate_on_submit():
 		if form.accountType.data != 'a' or form.accountType.data != 'p' or form.accountType.data != 's':
-			return redirect(url_for('error'))
+			db.session.add(User(form.email.data, form.password.data, form.accountType.data))
+			db.session.commit()
+			app.logger.info("New User " + form.email.data + " registered")
+			return redirect(url_for('dashboard'))
 
-		db.session.add(User(form.email.data, form.password.data, form.accountType.data))
-		db.session.commit()
-		return redirect(url_for('dashboard'))
+		return redirect(url_for('error'))
 	
 	return render_template('newUser.html', form=form)
 
@@ -80,13 +83,10 @@ def newUser():
 @login_required
 def dashboard():
 	if current_user.accType == 'a':
-		print("ADMIN")
 		return redirect(url_for('admindashboard'))
 	elif current_user.accType == 's':
-		print("STUDENT")
 		return redirect(url_for('studentdashboard'))
 	elif current_user.accType == 'p':
-		print("PROFESSOR")
 		return redirect(url_for('profdashboard'))
 
 # Admin dashboard
@@ -115,5 +115,6 @@ def logout():
 	return redirect(url_for('index'))
 
 if __name__ == '__main__':
-	setup()
+	if sys.argv[1] == "reset":
+		setup()
 	app.run(debug=True)
