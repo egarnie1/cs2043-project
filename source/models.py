@@ -3,6 +3,12 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+# This is the user model used in the database
+# Contains the following field:
+#	id 			- Primary Key
+#	email 		- email used to login
+#	password 	- password used to login
+#	accountType	- used to differentiate between account types for now
 class User(Base):
 	__tablename__ = 'users'
 
