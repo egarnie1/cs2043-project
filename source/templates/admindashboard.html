@@ -1,7 +1,7 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %}
-Student Dashboard
+Admin Dashboard
 {% endblock %}
 
 {% block styles %}
@@ -36,6 +36,7 @@ Student Dashboard
           <ul class="nav nav-sidebar">
             <li class="active"><a href="#">Course List <span class="sr-only">(current)</span></a></li>
             <li><a href="{{ url_for('newUser') }}">Create New User</a></li>
+            <li><a href="{{ url_for('newCourse') }}">Create New Course</a></li>
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
@@ -52,7 +53,6 @@ Student Dashboard
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
                   <th>Course ID</th>
                   <th>Course Name</th>
                   <th>Instructor</th>
@@ -60,27 +60,14 @@ Student Dashboard
                 </tr>
               </thead>
               <tbody>
+                {% for course in courseList %}
                 <tr>
-                  <td>1</td>
-                  <td>CS2043</td>
-                  <td>Software Engineering I</td>
-                  <td>Dr. Jong-Kyou Kim</td>
-                  <td>3/10</td>
+                  <td>{{ course.courseNum}}</td>
+                  <td>{{ course.courseName}}</td>
+                  <td>{{ course.instructor}}</td>
+                  <td>{{ course.nEnrolled}} / 10</td>
                 </tr>
-                <tr>
-                  <td>2</td>
-                  <td>CS2263</td>
-                  <td>Systems Software Development</td>
-                  <td>Dr. Jeffrey McNally</td>
-                  <td>6/10</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>CS1083</td>
-                  <td>Java II</td>
-                  <td>Dr. Josee Tasse</td>
-                  <td>9/10</td>
-                </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>

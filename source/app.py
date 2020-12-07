@@ -3,8 +3,8 @@ from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from models import User, Base
-from forms import LoginForm, CreateUserForm
+from models import Course, User, Base
+from forms import LoginForm, CreateUserForm, CreateCourseForm
 
 app = Flask(__name__)
 
@@ -28,6 +28,9 @@ def setup():
 	db.session.add(User('student@unb.ca', 'password123', 's'))
 	db.session.add(User('prof@unb.ca', 'password123', 'p'))
 	db.session.add(User('admin@unb.ca', 'password123', 'a'))
+	db.session.add(Course('CS2043', 'Software Engineering 1', 'Dr. Jong-Kyou Kim', 3))
+	db.session.add(Course('CS2263', 'Systems Software Development', 'Dr. Jeffrey McNally', 6))
+	db.session.add(Course('CS1083', 'Java 2', 'Dr. Josee Tasse', 9))
 	db.session.commit()
 
 @login_manager.user_loader
@@ -78,6 +81,20 @@ def newUser():
 	
 	return render_template('newUser.html', form=form)
 
+# Page for admins to create a new course
+@app.route('/newCourse', methods=['GET', 'POST'])
+@login_required
+def newCourse():
+	form = CreateCourseForm()
+
+	if form.validate_on_submit():
+		db.session.add(Course(form.courseNum.data, form.courseName.data, form.instructor.data, 0))
+		db.session.commit()
+		app.logger.info("New Course " + form.courseNum.data + " registered")
+		return redirect(url_for('dashboard'))
+	
+	return render_template('newCourse.html', form=form)
+
 # Redirects a user to their appropriate dashboard
 @app.route('/dashboard')
 @login_required
@@ -93,13 +110,15 @@ def dashboard():
 @app.route('/admindashboard')
 @login_required
 def admindashboard():
-	return render_template('admindashboard.html', email=current_user.email)
+	courses = db.session.query(Course).all()
+	return render_template('admindashboard.html', email=current_user.email, courseList=courses)
 
 # Student dashboard
 @app.route('/studentdashboard')
 @login_required
 def studentdashboard():
-	return render_template('studentdashboard.html', email=current_user.email)
+	courses = db.session.query(Course).all()
+	return render_template('studentdashboard.html', email=current_user.email, courseList=courses)
 
 # Professor dashboard
 @app.route('/profdashboard')
