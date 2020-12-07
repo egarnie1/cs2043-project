@@ -111,7 +111,8 @@ def dashboard():
 @login_required
 def admindashboard():
 	courses = db.session.query(Course).all()
-	return render_template('admindashboard.html', email=current_user.email, courseList=courses)
+	students = db.session.query(User).all()
+	return render_template('admindashboard.html', email=current_user.email, courseList=courses, studentList=students)
 
 # Student dashboard
 @app.route('/studentdashboard')

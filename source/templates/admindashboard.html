@@ -71,6 +71,25 @@ Admin Dashboard
               </tbody>
             </table>
           </div>
+          <h2 class="sub-header">Student List</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Student Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in studentList %}
+                {% if student.accType == 's' %}
+                <tr>
+                  <td>{{ student.email}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
